@@ -13,7 +13,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AKIAU7TS2TOZJ522XQRC }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1  # Match your S3 region
       - name: Deploy to S3
         run: aws s3 sync . s3://logistics-site-bucket --delete --exclude ".git/*" --exclude ".github/*"
