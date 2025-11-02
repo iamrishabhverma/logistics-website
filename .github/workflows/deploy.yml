@@ -1,0 +1,21 @@
+name: Deploy to AWS S3
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AKIAU7TS2TOZEFML7342}}
+          aws-secret-access-key: ${{ secrets.LckzUOIB0XZGpvTFV5UUB4KD0FzIZtLQ+UMk3RDy}}
+          aws-region: us-east-1  # Match your S3 region
+      - name: Deploy to S3
+        run: aws s3 sync . s3://your-bucket-name --delete --exclude ".git/*" --exclude ".github/*"
+      - name: Invalidate CloudFront cache (optional, for instant updates)
+        run: aws cloudfront create-invalidation --distribution-id E31CV62KH8TPRX --paths "/*"
