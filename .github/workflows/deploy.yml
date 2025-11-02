@@ -18,4 +18,4 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync . s3://logistics-site-bucket --delete --exclude ".git/*" --exclude ".github/*"
       - name: Invalidate CloudFront cache (optional, for instant updates)
-        run: aws cloudfront create-invalidation --distribution-id d2s2qjqun408e2.cloudfront.net --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id E7FQYC057TMXR --paths "/*"
