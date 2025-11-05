@@ -4,8 +4,6 @@ AOS.init({
     once: true
 });
 
-
-
 // Smooth scrolling for nav links
 document.querySelectorAll('nav a').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
@@ -22,104 +20,115 @@ hamburger.addEventListener('click', () => {
     navLinks.classList.toggle('active');
 });
 
+// --- DIMENSION & DENSITY CALCULATION LOGIC ---
+
+const lengthInput = document.getElementById('length');
+const widthInput = document.getElementById('width');
+const heightInput = document.getElementById('height');
+const weightInput = document.getElementById('weight');
+const cubeInput = document.getElementById('cube');
+const densityInput = document.getElementById('density');
+
+/**
+ * Calculates Cube (Volume) and Density based on L, W, H, and Weight inputs.
+ */
+function calculateMetrics() {
+    const L = parseFloat(lengthInput.value);
+    const W = parseFloat(widthInput.value);
+    const H = parseFloat(heightInput.value);
+    const Wt = parseFloat(weightInput.value);
+
+    // 1. Calculate Cube (Volume in ft³)
+    if (L > 0 && W > 0 && H > 0) {
+        const cube = L * W * H;
+        cubeInput.value = cube.toFixed(2);
+
+        // 2. Calculate Density (lbs/ft³)
+        if (Wt > 0) {
+            const density = Wt / cube;
+            densityInput.value = density.toFixed(2);
+        } else {
+            densityInput.value = '';
+        }
+    } else {
+        cubeInput.value = '';
+        densityInput.value = '';
+    }
+}
+
+// Add event listeners to trigger calculation on input change for all relevant fields
+[lengthInput, widthInput, heightInput, weightInput].forEach(input => {
+    if (input) {
+        input.addEventListener('input', calculateMetrics);
+    }
+});
 
 
+// --- FREIGHT RATE CALCULATION LOGIC (from rates.csv) ---
 
-// Form handling for the Quote Form
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('quote-form');
-    const submitBtn = form.querySelector('button[type="submit"]');
+// 1. Data structure from rates.csv
+const rateData = [
+    { origin_province: 'ON', destination_province: 'QC', base_rate: 150, per_km: 1.25, fuel_surcharge: 0.12 },
+    { origin_province: 'ON', destination_province: 'AB', base_rate: 300, per_km: 2.1, fuel_surcharge: 0.15 },
+    { origin_province: 'QC', destination_province: 'ON', base_rate: 150, per_km: 1.3, fuel_surcharge: 0.12 },
+    { origin_province: 'BC', destination_province: 'ON', base_rate: 400, per_km: 2.25, fuel_surcharge: 0.16 },
+];
 
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault(); // Prevent default form submission
+const calculateBtn = document.getElementById('calculate-btn');
+const quoteResultDiv = document.getElementById('quote-result');
+const totalCostSpan = document.getElementById('total-cost');
+const quoteDetailsP = document.getElementById('quote-details');
+const quoteForm = document.getElementById('quote-form');
 
-        // Clear previous errors
-        clearErrors();
+if (calculateBtn) {
+    calculateBtn.addEventListener('click', function(e) {
+        
+        // 1. Get Required Inputs for Calculation
+        const originProvince = document.getElementById('origin_province').value.toUpperCase().trim();
+        const destinationProvince = document.getElementById('destination_province').value.toUpperCase().trim();
+        const distanceKm = parseFloat(document.getElementById('distance_km').value);
 
-        // Validate form
-        if (!validateForm()) {
-            alert('Please fill in all required fields correctly.');
+        // Simple validation check for calculation inputs
+        if (isNaN(distanceKm) || distanceKm <= 0 || !originProvince || !destinationProvince) {
+            alert('Please fill in Origin/Destination Province and a positive Distance (km) to get an estimate.');
+            quoteResultDiv.style.display = 'none';
             return;
         }
 
-        // Prepare form data
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        // 2. Find the matching rate
+        const routeRate = rateData.find(route => 
+            route.origin_province === originProvince && 
+            route.destination_province === destinationProvince
+        );
 
-        // Disable button and show loading
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        if (routeRate) {
+            const { base_rate, per_km, fuel_surcharge } = routeRate;
 
-        try {
-            // Send to Formspree (replace with your actual endpoint)
-            const response = await fetch('https://formspree.io/f/your-form-id', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            // Calculation: Total Rate = Base Rate + (Distance * Per KM) * (1 + Fuel Surcharge)
+            const variableCost = distanceKm * per_km;
+            const subtotal = base_rate + variableCost;
+            const fuelSurchargeAmount = subtotal * fuel_surcharge;
+            const finalRate = subtotal + fuelSurchargeAmount;
 
-            if (response.ok) {
-                alert('Quote request submitted successfully! We\'ll get back to you soon.');
-                form.reset(); // Reset form
-            } else {
-                throw new Error('Submission failed');
-            }
-        } catch (error) {
-            alert('Error submitting form. Please try again or contact us directly.');
-            console.error('Form submission error:', error);
-        } finally {
-            // Re-enable button
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Quote';
+            // 3. Display the result
+            quoteResultDiv.style.display = 'block';
+            totalCostSpan.textContent = finalRate.toFixed(2);
+            quoteDetailsP.innerHTML = `
+                Route: ${originProvince} to ${destinationProvince} (Distance: ${distanceKm} km)<br>
+                Base Charge: \$${base_rate.toFixed(2)} | Fuel Surcharge (${(fuel_surcharge * 100).toFixed(0)}%): \$${fuelSurchargeAmount.toFixed(2)}
+            `;
+            
+            // Highlight the result
+            quoteResultDiv.style.border = '2px solid #28a745'; // Green border for success
+
+        } else {
+            // Display error if route is not found
+            quoteResultDiv.style.display = 'block';
+            totalCostSpan.textContent = 'N/A';
+            quoteDetailsP.innerHTML = `
+                Error: No published rate found for the route **${originProvince} to ${destinationProvince}**. Please contact us for a custom quote.
+            `;
+            quoteResultDiv.style.border = '2px solid #dc3545'; // Red border for error
         }
     });
-
-    // Validation function
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = form.querySelectorAll('[required]');
-        const radioGroups = ['trailer_type', 'commodity_type', 'stackable', 'load_type'];
-
-        // Check text/number/select fields
-        requiredFields.forEach(field => {
-            if (!field.value.trim() || (field.type === 'number' && parseFloat(field.value) <= 0)) {
-                highlightError(field);
-                isValid = false;
-            }
-        });
-
-        // Check radio groups (at least one selected)
-        radioGroups.forEach(groupName => {
-            const radios = form.querySelectorAll(`input[name="${groupName}"]`);
-            const isChecked = Array.from(radios).some(radio => radio.checked);
-            if (!isChecked) {
-                // Highlight the first radio in the group
-                highlightError(radios[0]);
-                isValid = false;
-            }
-        });
-
-        return isValid;
-    }
-
-    // Highlight error (red border)
-    function highlightError(element) {
-        element.style.borderColor = '#dc3545';
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // Clear all errors
-    function clearErrors() {
-        const fields = form.querySelectorAll('input, select, textarea');
-        fields.forEach(field => {
-            field.style.borderColor = '#ddd';
-        });
-    }
-
-    // Optional: Clear errors on input change for better UX
-    form.addEventListener('input', function(e) {
-        if (e.target.style.borderColor === 'rgb(220, 53, 69)') { // Red
-            e.target.style.borderColor = '#ddd';
-        }
-    });
-});
+}

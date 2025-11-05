@@ -1,0 +1,201 @@
+// Initialize AOS animations
+AOS.init({
+    duration: 1000,
+    once: true
+});
+
+
+
+// Smooth scrolling for nav links
+document.querySelectorAll('nav a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        target.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+// Hamburger menu toggle
+const hamburger = document.querySelector('.hamburger');
+const navLinks = document.querySelector('.nav-links');
+hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+});
+
+
+// Sample CSV data as JS object (replace with your actual CSV data)
+// Structure: {originProvince: {destinationProvince: {miles: X, rate: Y}}}
+const quoteData = {
+    "ON": {
+        "QC": { miles: 500, rate: 15 },
+        "BC": { miles: 2500, rate: 20 },
+        "AB": { miles: 1800, rate: 18 },
+        "MB": { miles: 1200, rate: 16 },
+        "SK": { miles: 1400, rate: 17 },
+        "NS": { miles: 800, rate: 14 },
+        "NB": { miles: 700, rate: 13 },
+        "PE": { miles: 750, rate: 13.5 },
+        "NL": { miles: 1000, rate: 15 }
+    },
+    "QC": {
+        "ON": { miles: 500, rate: 15 },
+        // Add more as needed...
+    },
+    // Add all province pairs here (e.g., BC to AB, etc.)
+};
+
+// Auto-populate cube and density based on weight and class
+document.getElementById('weight').addEventListener('input', updateCubeDensity);
+document.getElementById('class').addEventListener('change', updateCubeDensity);
+
+function updateCubeDensity() {
+    const weight = parseFloat(document.getElementById('weight').value) || 0;
+    const freightClass = parseFloat(document.getElementById('class').value) || 0;
+    if (weight > 0 && freightClass > 0) {
+        // Basic density calculation (adjust formula as needed)
+        const density = (weight / 1000) * freightClass / 10; // Example: lbs/ft³
+        const cube = weight / density; // ft³
+        document.getElementById('density').value = density.toFixed(2);
+        document.getElementById('cube').value = cube.toFixed(2);
+    }
+}
+
+// Calculate quote on button click
+document.getElementById('calculate-btn').addEventListener('click', function() {
+    const form = document.getElementById('quote-form');
+    const originProv = form.origin_province.value.toUpperCase();
+    const destProv = form.destination_province.value.toUpperCase();
+    const weight = parseFloat(form.weight.value);
+    const trailerType = form.trailer_type.value;
+    const commodityType = form.commodity_type.value;
+    const accessories = form.accessories.value.trim();
+
+    // Validate weight limits
+    const maxWeight = trailerType === 'Triaxle' ? 65000 : 80000;
+    if (weight > maxWeight) {
+        alert(`Weight exceeds max for ${trailerType}: ${maxWeight} lbs`);
+        return;
+    }
+
+    // Get miles and rate from data
+    const route = quoteData[originProv]?.[destProv];
+    if (!route) {
+        alert('Route not found in data. Please check provinces.');
+        return;
+    }
+    const { miles, rate } = route;
+
+    // Calculate cost
+    let totalCost = (miles * rate) + 150; // Base + tarping
+    if (commodityType === 'HazMat') totalCost += 100;
+    if (accessories) totalCost += 50; // Example accessory fee; adjust as needed
+
+    // Display result
+    document.getElementById('quote-details').innerText = `Route: ${originProv} to ${destProv} (${miles} miles at $${rate}/mile). Tarping: $150. ${commodityType === 'HazMat' ? 'HazMat fee: $100.' : ''} ${accessories ? 'Accessories: $50.' : ''}`;
+    document.getElementById('total-cost').innerText = totalCost.toFixed(2);
+    document.getElementById('quote-result').style.display = 'block';
+});
+
+// Existing form submission logic (unchanged, but ensure it includes the calculated data if needed)
+
+
+// Form handling for the Quote Form
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('quote-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        // Clear previous errors
+        clearErrors();
+
+        // Validate form
+        if (!validateForm()) {
+            alert('Please fill in all required fields correctly.');
+            return;
+        }
+
+        // Prepare form data
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        // Disable button and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+        try {
+            // Send to Formspree (replace with your actual endpoint)
+            const response = await fetch('https://formspree.io/f/your-form-id', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Quote request submitted successfully! We\'ll get back to you soon.');
+                form.reset(); // Reset form
+            } else {
+                throw new Error('Submission failed');
+            }
+        } catch (error) {
+            alert('Error submitting form. Please try again or contact us directly.');
+            console.error('Form submission error:', error);
+        } finally {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Quote';
+        }
+    });
+
+    // Validation function
+    function validateForm() {
+        let isValid = true;
+        const requiredFields = form.querySelectorAll('[required]');
+        const radioGroups = ['trailer_type', 'commodity_type', 'stackable', 'load_type'];
+
+        // Check text/number/select fields
+        requiredFields.forEach(field => {
+            if (!field.value.trim() || (field.type === 'number' && parseFloat(field.value) <= 0)) {
+                highlightError(field);
+                isValid = false;
+            }
+        });
+
+        // Check radio groups (at least one selected)
+        radioGroups.forEach(groupName => {
+            const radios = form.querySelectorAll(`input[name="${groupName}"]`);
+            const isChecked = Array.from(radios).some(radio => radio.checked);
+            if (!isChecked) {
+                // Highlight the first radio in the group
+                highlightError(radios[0]);
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    // Highlight error (red border)
+    function highlightError(element) {
+        element.style.borderColor = '#dc3545';
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Clear all errors
+    function clearErrors() {
+        const fields = form.querySelectorAll('input, select, textarea');
+        fields.forEach(field => {
+            field.style.borderColor = '#ddd';
+        });
+    }
+
+    // Optional: Clear errors on input change for better UX
+    form.addEventListener('input', function(e) {
+        if (e.target.style.borderColor === 'rgb(220, 53, 69)') { // Red
+            e.target.style.borderColor = '#ddd';
+        }
+    });
+});
+
+
