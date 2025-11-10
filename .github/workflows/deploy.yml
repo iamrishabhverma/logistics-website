@@ -19,7 +19,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/GitHubActionsRole  # Replace with your Role ARN
+          role-to-assume: arn:aws:iam::342764460978:role/GitHubActionsRole  # Replace with your Role ARN
           aws-region: us-east-1  # Replace with your S3 region
 
       - name: Deploy to S3
@@ -27,5 +27,5 @@ jobs:
           aws s3 sync . s3://logistics-site-bucket --delete --exclude ".git/*" --exclude ".github/*" --exclude "README.md"
 
       # Optional: Invalidate CloudFront cache
-      # - name: Invalidate CloudFront cache
-      #   run: aws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths "/*"
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E31CV62KH8TPRX --paths "/*"
