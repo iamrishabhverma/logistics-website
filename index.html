@@ -304,6 +304,37 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="script.js"></script>
+    <!-- <iframe 
+  src="https://dwgjjrld83lwc.cloudfront.net/index.html"
+  style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; border: none; z-index: 9999;">
+</iframe> -->
+
+<div class="chatbot-container">
+  <iframe
+    id="chatbotPanel"
+    class="chatbot-panel"
+    src="https://dwgjjrld83lwc.cloudfront.net/index.html"
+    title="Chatbot"
+  ></iframe>
+
+  <div class="chatbot-toggle-wrapper">
+    <button id="chatbotToggle" class="chatbot-toggle">💬</button>
+    
+  </div>
+</div>
+
+<script>
+  const toggle = document.getElementById('chatbotToggle');
+  const panel  = document.getElementById('chatbotPanel');
+
+  toggle.addEventListener('click', () => {
+    panel.classList.toggle('open');
+  });
+</script>
+
+
+
+
 </body>
 
 </html>

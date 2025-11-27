@@ -78,6 +78,56 @@ input:focus, select:focus, textarea:focus { border-color: #007bff; outline: none
 textarea { resize: vertical; min-height: 80px; }
 select { height: 45px; }
 
+/* Chatbot container fixed to bottom-right */
+.chatbot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* The iframe panel (hidden by default) */
+.chatbot-panel {
+  width: 350px;
+  height: 500px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: #fff;
+  transform-origin: bottom right;
+  transform: scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.chatbot-panel.open {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Toggle button */
+.chatbot-toggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  display:inline-flex
+  place-items: center;
+  box-shadow: 0 6px 14px rgba(14,165,233,0.35);
+  transition: background 120ms ease;
+}
+.chatbot-toggle:hover { background: #0284c7; }
+
+
+
 
 /* Form feedback styles */
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
