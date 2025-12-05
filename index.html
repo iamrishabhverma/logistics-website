@@ -303,17 +303,12 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="script.js"></script>
-    <!-- <iframe 
-  src="https://dwgjjrld83lwc.cloudfront.net/index.html"
-  style="position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; border: none; z-index: 9999;">
-</iframe> -->
 
 <div class="chatbot-container">
   <iframe
     id="chatbotPanel"
     class="chatbot-panel"
-    src="https://dwgjjrld83lwc.cloudfront.net/index.html"
+    src="https://dv7hszd4olwtu.cloudfront.net/index.html"
     title="Chatbot"
   ></iframe>
 
@@ -330,7 +325,29 @@
   toggle.addEventListener('click', () => {
     panel.classList.toggle('open');
   });
+</script> 
+<script src="https://dv7hszd4olwtu.cloudfront.net/lex-web-ui-loader.min.js"></script>
+<script>
+  var loaderOpts = {
+    baseUrl: 'https://dv7hszd4olwtu.cloudfront.net/',
+    shouldLoadMinDeps: true
+  };
+  var loader = new ChatBotUiLoader.IframeLoader(loaderOpts);
+  var chatbotUiConfig = {
+          /* Example of setting session attributes on parent page
+          lex: {
+            sessionAttributes: {
+              userAgent: navigator.userAgent,
+              QNAClientFilter: ''
+            }
+          }
+          */
+        };
+  loader.load(chatbotUiConfig)
+    .catch(function (error) { console.error(error); });
 </script>
+
+
 
 
 
