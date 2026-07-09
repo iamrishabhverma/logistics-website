@@ -5,7 +5,14 @@ A modern logistics and freight management web application integrated with intell
 ## 🚀 Key Features
 
 ### 🤖 1. AI-Powered Shipment Tracking
-Integrated with an **Amazon Lex V2 chatbot** to provide real-time automated updates on shipment status. Customers can naturally converse with the bot to track their orders, reducing support ticket volume and improving the user experience.
+Built a conversational shipment tracking experience using **Amazon Lex V2**, backed by a Lambda function that resolves tracking IDs against a live data store for real-time status, origin, and destination lookups. Requests outside the bot's defined intents are handled by a **Gemini-powered fallback**, which keeps responses on-topic and redirects users back to logistics-related queries — eliminating dead-end "I didn't understand that" experiences and reducing support ticket volume.
+
+**Highlights:**
+- **Intent-driven NLU** — Lex V2 parses natural-language shipment queries and extracts tracking IDs via slot filling, no rigid command syntax required
+- **Serverless resolution layer** — AWS Lambda handles intent routing, data lookup, and response formatting with sub-second latency
+- **LLM fallback handling** — Out-of-scope or ambiguous requests are routed to the Gemini API with a scoped system prompt, keeping the assistant's persona consistent and on-brand
+- **Secure credential management** — API keys and tokens retrieved at runtime via AWS Systems Manager Parameter Store (SecureString), with in-memory caching to minimize cold-start overhead
+- **Graceful degradation** — Structured error handling ensures the bot never surfaces raw errors to the user, always returning a conversational response
 
 ### 📊 2. Dynamic Spot Quote Calculator
 A fully functional **Spot Quote Calculator** that lets users instantly estimate freight and shipping costs. 
@@ -32,6 +39,12 @@ Integrated with **Formspree** to manage structured Requests for Quotes (RFQ) and
 
 ### Shipment Tracking via LexV2 Bot
 ![Shipment Tracking](https://github.com/user-attachments/assets/0fbaefc1-902d-46c1-936c-8a912222db5e)
+
+## Gemini powered out-of-scope requests
+
+<img width="429" height="633" alt="Screenshot 2026-07-09 at 6 10 54 PM" src="https://github.com/user-attachments/assets/50cbc0ab-39e8-42a6-9fdd-4f4abb8ef62f" />
+<img width="429" height="633" alt="Screenshot 2026-07-09 at 6 10 32 PM" src="https://github.com/user-attachments/assets/65d3cd2a-06d8-4b3d-8ab7-fedfa5957546" />
+
 
 ### Spot Quote Calculator
 ![Spot Quote Calculator](https://github.com/user-attachments/assets/148b1fe4-31b5-4120-b170-5e40e3cb1fb8)
