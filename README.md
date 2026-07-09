@@ -40,7 +40,7 @@ Integrated with **Formspree** to manage structured Requests for Quotes (RFQ) and
 ### Shipment Tracking via LexV2 Bot
 ![Shipment Tracking](https://github.com/user-attachments/assets/0fbaefc1-902d-46c1-936c-8a912222db5e)
 
-## Gemini powered out-of-scope requests
+## Gemini powered out-of-scope requests handling
 
 <img width="429" height="633" alt="Screenshot 2026-07-09 at 6 10 54 PM" src="https://github.com/user-attachments/assets/50cbc0ab-39e8-42a6-9fdd-4f4abb8ef62f" />
 <img width="429" height="633" alt="Screenshot 2026-07-09 at 6 10 32 PM" src="https://github.com/user-attachments/assets/65d3cd2a-06d8-4b3d-8ab7-fedfa5957546" />
