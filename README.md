@@ -1,6 +1,6 @@
 # Logistics Website with Automated Solutions
 
-A modern logistics and freight management web application integrated with intelligent automation tools. This project features an interactive AI chatbot for shipment tracking, a dynamic spot quote calculator driven by structured pricing data, and automated RFQ/RFP form submissions.
+A modern logistics and freight management web application integrated with intelligent automation tools. This project features an interactive AI chatbot for shipment tracking, a dynamic spot quote calculator driven by structured pricing data, and automated RFQ/RFP form submissions. 
 
 ## 🚀 Key Features
 
@@ -29,9 +29,11 @@ Integrated with **Formspree** to manage structured Requests for Quotes (RFQ) and
 ## 🛠️ Tech Stack & Integrations
 
 * **Frontend:** HTML5, CSS3, JavaScript (Responsive layout)
+* **Hosting:** AWS CloudFront CDN - [Live Website](https://d1zwnkizaf7jzb.cloudfront.net/), Render -[Shipments Portal](https://aws-logistics-serverless.onrender.com/),
 * **AI & Conversational AI:** Amazon Lex V2 (Shipment tracking bot)
 * **Forms & Backend Automation:** Formspree API
 * **Data Management:** CSV / Excel (`Rates.xlsx` converted to `Rates.csv`) for dynamic pricing data
+
 
 ---
 
